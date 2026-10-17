@@ -29,13 +29,265 @@
   a:hover { color: #101010; }
   ::selection { background: #101010; color: #FFFFFF; }
   @keyframes fadeUp { from { opacity: 0; transform: translateY(22px); } to { opacity: 1; transform: none; } }
-  [data-reveal] { opacity: 0; transform: translateY(20px); transition: opacity 0.9s cubic-bezier(0.2,0.8,0.2,1), transform 0.9s cubic-bezier(0.2,0.8,0.2,1); }
-  [data-reveal][data-shown] { opacity: 1; transform: none; }
-  @media (prefers-reduced-motion: reduce) { [data-reveal] { opacity: 1 !important; transform: none !important; transition: none; } }
+  /* Scroll reveal, same "materialize" language as the hero: rise + come into focus */
+  [data-reveal] {
+    opacity: 0; transform: translateY(24px); filter: blur(8px);
+    transition: opacity 0.9s var(--ease-out), transform 1.1s var(--ease-out), filter 0.9s var(--ease-out);
+  }
+  [data-reveal][data-shown] { opacity: 1; transform: none; filter: none; }
+  @media (prefers-reduced-motion: reduce) {
+    [data-reveal] { transform: none !important; filter: none !important; transition: opacity 0.4s ease; }
+  }
+
+  /* Words rising from behind a mask line — reused by the hero and Contact */
+  .mask-words .mw { display: inline-block; overflow: hidden; vertical-align: top; padding-bottom: 0.1em; margin-bottom: -0.1em; }
+  .mask-words .mw > span { display: inline-block; transition: transform 1.15s var(--ease-out), opacity 1.15s var(--ease-out); }
+  .mask-words:not([data-shown]) .mw > span { transform: translateY(105%) rotate(2deg); opacity: 0; }
+  .mask-words .mw:nth-of-type(2) > span { transition-delay: 0.07s; }
+  .mask-words .mw:nth-of-type(3) > span { transition-delay: 0.14s; }
+  .mask-words .mw:nth-of-type(4) > span { transition-delay: 0.21s; }
+  .mask-words .mw:nth-of-type(5) > span { transition-delay: 0.28s; }
+  @media (prefers-reduced-motion: reduce) {
+    .mask-words .mw > span { transform: none !important; transition: opacity 0.4s ease; }
+  }
+
+  /* Section header rule draws itself in from the left */
+  .sec-head { position: relative; }
+  .sec-head::after {
+    content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 1px; background: #101010;
+    transform-origin: 0 50%; transform: scaleX(0); transition: transform 1.2s var(--ease-out) 0.15s;
+  }
+  .sec-head[data-shown]::after { transform: scaleX(1); }
+  @media (prefers-reduced-motion: reduce) { .sec-head::after { transform: none; transition: none; } }
+
+  /* Chips */
+  .chip {
+    font-size: 13px; color: #5C5C5C; padding: 7px 14px; border-radius: 999px;
+    border: 1px solid #EAEAEA; background: rgba(255,255,255,0.7);
+    transition: border-color 200ms ease, color 200ms ease, background-color 200ms ease;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .chip:hover { border-color: #101010; color: #101010; background: #FFFFFF; }
+  }
+
+  /* Photo: rounded, slight parallax inside its frame */
+  .photo-frame { position: relative; width: 100%; aspect-ratio: 4 / 5; background: #F4F4F4; border-radius: 20px; overflow: hidden; box-shadow: 0 1px 2px rgba(16,16,16,0.06), 0 24px 48px -24px rgba(16,16,16,0.35); }
+  .photo-frame > image-slot { display: block; width: 100%; height: 100%; scale: 1.12; will-change: transform; }
+
+  /* Marquee fades out at the edges instead of being cut */
+  .marquee-mask {
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+            mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+  }
+
+  /* Case-study rows */
+  .proj-row { transition: background-color 200ms ease; border-radius: 14px; }
+  .proj-title { display: inline-block; transition: transform 400ms var(--ease-out); }
+  .proj-sign {
+    display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; border-radius: 999px;
+    border: 1px solid #EAEAEA; font-size: 18px; line-height: 1; color: #5C5C5C;
+    transition: transform 400ms var(--ease-out), background-color 200ms ease, color 200ms ease, border-color 200ms ease;
+  }
+  .proj-row[aria-expanded="true"] .proj-sign { transform: rotate(45deg); background: #2B2D30; border-color: #2B2D30; color: #FFFFFF; }
+  .proj-row:active .proj-sign { scale: 0.92; }
+  @media (hover: hover) and (pointer: fine) {
+    .proj-row:hover .proj-title { transform: translateX(6px); }
+    .proj-row:hover .proj-sign { border-color: #101010; color: #101010; }
+    .proj-row[aria-expanded="true"]:hover .proj-sign { color: #FFFFFF; }
+  }
+  .proj-row:focus-visible { outline: 2px solid #101010; outline-offset: 4px; }
+  /* opened content materializes instead of just being uncovered */
+  .acc-content { opacity: 0; transform: translateY(12px) scale(0.985); filter: blur(6px); transform-origin: 50% 0;
+    transition: opacity 300ms ease, transform 500ms var(--ease-out), filter 300ms ease; }
+  .proj-row[aria-expanded="true"] + .acc-collapse .acc-content { opacity: 1; transform: none; filter: none; transition-delay: 80ms; }
+  .shot { display: block; border-radius: 16px; overflow: hidden; border: 1px solid #EAEAEA; box-shadow: 0 24px 48px -28px rgba(16,16,16,0.35); }
+  .shot img { display: block; width: 100%; height: auto; transition: transform 700ms var(--ease-out); }
+  @media (hover: hover) and (pointer: fine) { .shot:hover img { transform: scale(1.025); } }
+  .tlink { position: relative; padding-bottom: 3px; }
+  .tlink::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 1px; background: currentColor; transform-origin: 0 50%; transition: transform 400ms var(--ease-out); }
+  .tlink--muted { color: #5C5C5C; }
+  .tlink--muted::after { background: #DADADA; }
+  @media (hover: hover) and (pointer: fine) {
+    .tlink:hover::after { transform: scaleX(0); transform-origin: 100% 50%; }
+    .tlink--muted:hover { color: #101010; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .acc-content { transform: none; filter: none; transition: opacity 0.3s ease; }
+    .proj-title, .proj-sign, .shot img { transition: background-color 200ms ease, color 200ms ease; }
+  }
+
+  /* Contact: dark stage that widens to full bleed as it scrolls in */
+  .contact { position: relative; overflow: hidden; background: #2B2D30; color: #FFFFFF; }
+  .contact > canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none;
+    -webkit-mask-image: radial-gradient(ellipse 80% 75% at 50% 50%, #000 30%, transparent 100%);
+            mask-image: radial-gradient(ellipse 80% 75% at 50% 50%, #000 30%, transparent 100%); }
+  .contact-inner { position: relative; z-index: 1; }
+  .contact-muted {
+    color: #8A8D93;
+    background:
+      radial-gradient(240px circle at var(--mx, -999px) var(--my, -999px), var(--spot, rgba(255,255,255,0)), transparent 70%),
+      linear-gradient(180deg, #8A8D93 0%, #6E7177 100%);
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .hbtn-light { background: #FFFFFF; color: #101010; box-shadow: 0 1px 2px rgba(0,0,0,0.2), 0 10px 24px -12px rgba(0,0,0,0.6); }
+  .hbtn-light:hover { background: #E6E6E6; color: #101010; }
+  .hbtn-outline-dark { background: rgba(255,255,255,0.04); color: #FFFFFF; border: 1px solid #55585E; font-family: inherit; cursor: pointer; }
+  .hbtn-outline-dark:hover { border-color: #FFFFFF; background: rgba(255,255,255,0.08); color: #FFFFFF; }
+  .hbtn-light:focus-visible, .hbtn-outline-dark:focus-visible { outline-color: #FFFFFF; }
   @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
-  .acc-collapse { display: grid; transition: grid-template-rows 0.45s cubic-bezier(0.2,0.8,0.2,1); }
+  .acc-collapse { display: grid; transition: grid-template-rows 0.5s var(--ease-out); }
   .acc-collapse-inner { overflow: hidden; min-height: 0; }
   @media (prefers-reduced-motion: reduce) { .acc-collapse { transition: none; } }
+
+  /* ---------- Hero ---------- */
+  :root { --ease-out: cubic-bezier(0.23, 1, 0.32, 1); }
+  .hero {
+    position: relative; overflow: hidden;
+    min-height: calc(100svh - 66px); box-sizing: border-box;
+    display: flex; flex-direction: column; justify-content: center;
+    padding: 72px 0 120px;
+  }
+  .hero-inner {
+    position: relative; z-index: 1; width: 100%; max-width: 1144px; margin: 0 auto; /* 1080 content + gutters, matches header */
+    padding: 0 32px; box-sizing: border-box;
+    transform-origin: 50% 0; will-change: transform, opacity;
+  }
+  /* soft monochrome halo behind the title, gives the page depth */
+  .hero::before {
+    content: ""; position: absolute; left: 50%; top: 42%; width: min(1100px, 120vw); aspect-ratio: 1.6;
+    transform: translate(-50%, -50%); pointer-events: none;
+    background: radial-gradient(closest-side, rgba(16,16,16,0.06), rgba(16,16,16,0.02) 55%, transparent);
+    animation: heroHalo 1.6s var(--ease-out) both;
+  }
+  @keyframes heroHalo { from { opacity: 0; transform: translate(-50%, -46%) scale(0.92); } to { opacity: 1; transform: translate(-50%, -50%); } }
+
+  /* Words rise from behind a mask line, apple.com-style */
+  .hero-line { display: block; overflow: hidden; padding-bottom: 0.1em; margin-bottom: -0.1em; }
+  .hero-word { display: inline-block; animation: heroWord 1.15s var(--ease-out) both; }
+  @keyframes heroWord {
+    from { transform: translateY(105%) rotate(2deg); opacity: 0; }
+    to   { transform: none; opacity: 1; }
+  }
+  .hero-w1 { animation-delay: 0.10s; }
+  .hero-w2 { animation-delay: 0.18s; }
+  .hero-w3 { animation-delay: 0.28s; }
+  .hero-muted {
+    color: #C9C9C9;
+    /* --spot is driven by the pointer: a soft dark light passing over the gray */
+    background:
+      radial-gradient(260px circle at var(--mx, -999px) var(--my, -999px), var(--spot, rgba(16,16,16,0)), transparent 70%),
+      linear-gradient(180deg, #B4B4B4 0%, #DADADA 100%);
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+  }
+
+  .hero-cue {
+    position: absolute; left: 50%; bottom: 28px; z-index: 1; transform: translateX(-50%);
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    font-size: 11px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: #9A9A9A;
+    animation: heroCueIn 0.8s var(--ease-out) 1s backwards; /* not `both`: the scroll fade sets opacity inline afterwards */
+    transition: color 200ms ease;
+  }
+  .hero-cue:hover { color: #101010; }
+  @keyframes heroCueIn { from { opacity: 0; } to { opacity: 1; } }
+  .hero-cue-mouse { width: 20px; height: 32px; border: 1.5px solid currentColor; border-radius: 999px; display: flex; justify-content: center; padding-top: 6px; box-sizing: border-box; }
+  .hero-cue-dot { width: 3px; height: 6px; border-radius: 999px; background: currentColor; animation: heroCueDot 1.8s var(--ease-out) infinite; }
+  @keyframes heroCueDot { 0% { opacity: 0; transform: translateY(-2px); } 30% { opacity: 1; } 80%, 100% { opacity: 0; transform: translateY(9px); } }
+
+  .nav-pill {
+    padding: 7px 16px; border-radius: 999px; border: 1px solid #DADADA; color: #101010; font-weight: 500;
+    transition: background-color 200ms ease, color 200ms ease, border-color 200ms ease, transform 160ms var(--ease-out);
+  }
+  .nav-pill:hover { background: #2B2D30; color: #FFFFFF; border-color: #2B2D30; }
+  .nav-pill:active { transform: scale(0.97); }
+  /* "materialize": the text arrives as a surface coming into focus, not a plain fade */
+  @keyframes heroIn {
+    from { opacity: 0; transform: translateY(18px); filter: blur(12px); }
+    to   { opacity: 1; transform: none; filter: blur(0); }
+  }
+  .hero-in { animation: heroIn 1.1s var(--ease-out) both; }
+  .hero-grid {
+    position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none;
+    -webkit-mask-image: radial-gradient(ellipse 75% 70% at 50% 45%, #000 35%, transparent 100%);
+            mask-image: radial-gradient(ellipse 75% 70% at 50% 45%, #000 35%, transparent 100%);
+  }
+  .hero-chip {
+    display: inline-flex; align-items: center; gap: 9px;
+    padding: 7px 14px 7px 11px; border-radius: 999px;
+    background: rgba(255,255,255,0.72);
+    -webkit-backdrop-filter: blur(14px) saturate(180%); backdrop-filter: blur(14px) saturate(180%);
+    border: 1px solid rgba(16,16,16,0.08);
+    box-shadow: 0 1px 2px rgba(16,16,16,0.04), inset 0 1px 0 rgba(255,255,255,0.9);
+    font-size: 13px; font-weight: 500; letter-spacing: 0.005em; color: #5C5C5C;
+  }
+  .hero-chip-dot { width: 6px; height: 6px; border-radius: 999px; background: #101010; box-shadow: 0 0 0 3px rgba(16,16,16,0.08); }
+  .hero-title {
+    margin: 0; font-weight: 600;
+    font-size: clamp(52px, 11.4vw, 150px); line-height: 0.9; letter-spacing: -0.05em;
+  }
+  .hero-foot {
+    margin-top: 56px; padding-top: 32px; position: relative;
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 40px; align-items: center;
+    animation-delay: 0.5s;
+  }
+  .hero-foot::before {
+    content: ""; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, #EAEAEA 0%, #EAEAEA 70%, transparent 100%);
+  }
+  .hero-lede { margin: 0; max-width: 500px; font-size: 19px; line-height: 1.55; letter-spacing: -0.012em; color: #5C5C5C; text-wrap: pretty; }
+  .hero-lede strong { color: #101010; font-weight: 500; }
+  .hero-actions { display: flex; flex-wrap: wrap; gap: 10px; justify-content: flex-end; align-items: center; }
+  .hero-socials { display: flex; gap: 10px; }
+
+  .hbtn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    height: 48px; padding: 0 22px; border-radius: 999px; box-sizing: border-box;
+    font-size: 15px; font-weight: 500; letter-spacing: -0.005em; white-space: nowrap;
+    -webkit-tap-highlight-color: transparent; user-select: none;
+    transition: transform 320ms var(--ease-out), background-color 200ms ease, color 200ms ease,
+                border-color 200ms ease, box-shadow 320ms var(--ease-out);
+  }
+  /* feedback lives on the press, and it's instant */
+  .hbtn:active { transform: scale(0.97); transition-duration: 80ms; }
+  .hbtn:focus-visible { outline: 2px solid #101010; outline-offset: 3px; }
+  .hbtn-primary {
+    background: #2B2D30; color: #FFFFFF;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.14), 0 1px 2px rgba(16,16,16,0.12), 0 8px 20px -10px rgba(16,16,16,0.5);
+  }
+  .hbtn-primary:hover {
+    background: #101010; color: #FFFFFF;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.14), 0 1px 2px rgba(16,16,16,0.12), 0 14px 28px -12px rgba(16,16,16,0.55);
+  }
+  .hbtn-arrow { display: inline-block; transition: transform 320ms var(--ease-out); }
+  @media (hover: hover) and (pointer: fine) {
+    .hbtn:hover .hbtn-arrow { transform: translateX(3px); }
+  }
+  .hbtn-secondary {
+    background: rgba(255,255,255,0.7); color: #101010; border: 1px solid rgba(16,16,16,0.16);
+    -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
+  }
+  .hbtn-secondary:hover { background: #FFFFFF; border-color: #101010; color: #101010; }
+  .hbtn-ghost { padding: 0 18px; border: 1px solid #DADADA; color: #5C5C5C; background: rgba(255,255,255,0.6); }
+  .hbtn-ghost:hover { border-color: #101010; color: #101010; background: #FFFFFF; }
+
+  @media (prefers-reduced-motion: reduce) {
+    /* gentle cross-fade instead of slide + blur */
+    @keyframes heroInReduced { from { opacity: 0; } to { opacity: 1; } }
+    .hero-in, .hero-word { animation: heroInReduced 0.4s ease both; }
+    .hero::before { animation: heroInReduced 0.4s ease both; }
+    .hero-cue-dot { animation: none; }
+    .hbtn, .hbtn-arrow { transition: background-color 200ms ease, color 200ms ease, border-color 200ms ease; }
+    .hbtn:active, .hbtn:hover .hbtn-arrow { transform: none; }
+  }
+  @media (prefers-reduced-transparency: reduce) {
+    .hero-chip, .hbtn-secondary { background: #FFFFFF; -webkit-backdrop-filter: none; backdrop-filter: none; }
+  }
+  @media (max-width: 640px) {
+    .hero-actions { justify-content: flex-start; }
+    .hero { padding: 48px 0 104px; }
+    .hero-inner { padding: 0 16px; }
+  }
+  @media (max-height: 600px) { .hero-cue { display: none; } }
+
   @media (max-width: 640px) {
     .site-name { display: none; }
     .about-grid { grid-template-columns: 1fr !important; }
@@ -45,7 +297,7 @@
     .footer-grid { grid-template-columns: repeat(2, 1fr) !important; }
     .btn-label { display: none; }
     .btn-icon { display: inline-flex !important; }
-    .icon-btn { padding: 12px !important; }
+    .icon-btn { padding: 0 !important; width: 48px; }
   }
 </style>
 </helmet>
@@ -61,7 +313,7 @@
       <nav style="display:flex;align-items:center;gap:22px;fontSize:14px;color:#767676">
         <a href="#about" style-hover="color:#101010">About</a>
         <a href="#work" style-hover="color:#101010">Work</a>
-        <a href="#contact" style="padding:7px 15px;border:1px solid #DADADA;color:#101010;fontWeight:500" style-hover="background:#2B2D30;color:#FFFFFF;border-color:#101010">Contact</a>
+        <a href="#contact" class="nav-pill">Contact</a>
       </nav>
     </div>
     <div style="height:2px;background:transparent">
@@ -69,36 +321,37 @@
     </div>
   </header>
 
-  <section id="top" style="position:relative;overflow:hidden;max-width:1080px;margin:0 auto;padding:96px 32px 72px">
-    <canvas id="hero-grid" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none"></canvas>
-    <div style="position:relative;zIndex:1">
+  <section id="top" class="hero">
+    <canvas id="hero-grid" class="hero-grid"></canvas>
+    <div id="hero-inner" class="hero-inner">
     <sc-if value="{{ showAvailability }}" hint-placeholder-val="{{ true }}">
-      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;marginBottom:56px;fontSize:13px;color:#767676;animation:fadeUp 1s cubic-bezier(0.2,0.8,0.2,1) both">
-        <div style="display:flex;align-items:center;gap:9px">
-          <span style="width:6px;height:6px;borderRadius:999px;background:#101010"></span>
+      <div class="hero-in" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;marginBottom:56px;fontSize:13px;color:#767676">
+        <div class="hero-chip">
+          <span class="hero-chip-dot"></span>
           <span>Open to junior frontend roles</span>
         </div>
-        <span>Tucuman — Argentina</span>
+        <span style="letterSpacing:0.005em">Tucuman — Argentina</span>
       </div>
     </sc-if>
 
-    <h1 style="margin:0;fontWeight:500;fontSize:clamp(52px,11.4vw,150px);lineHeight:0.86;letterSpacing:-0.055em;animation:fadeUp 1.1s cubic-bezier(0.2,0.8,0.2,1) 0.15s both">
-      Junior Frontend<br /><span style="color:#C9C9C9">Developer</span>
+    <h1 class="hero-title" aria-label="Junior Frontend Developer">
+      <span class="hero-line" aria-hidden="true"><span class="hero-word hero-w1">Junior</span> <span class="hero-word hero-w2">Frontend</span></span>
+      <span class="hero-line" aria-hidden="true"><span id="hero-muted" class="hero-word hero-w3 hero-muted">Developer</span></span>
     </h1>
 
-    <div style="marginTop:56px;paddingTop:32px;borderTop:1px solid #EAEAEA;display:grid;gridTemplateColumns:repeat(auto-fit,minmax(300px,1fr));gap:48px;align-items:start;animation:fadeUp 1.1s cubic-bezier(0.2,0.8,0.2,1) 0.32s both">
-      <p style="margin:0;fontSize:19px;lineHeight:1.55;letterSpacing:-0.01em;maxWidth:500px;textWrap:pretty">
-        I enjoy turning client ideas into simple, functional, and professional web applications that people enjoy using.
+    <div class="hero-foot hero-in">
+      <p class="hero-lede">
+        I enjoy turning client ideas into <strong>simple, functional, and professional</strong> web applications that people enjoy using.
       </p>
-      <div style="display:flex;flex-wrap:wrap;gap:10px;justify-content:flex-end;align-items:flex-start">
-        <a href="mailto:andres.bleckwedel2@gmail.com" style="padding:14px 24px;background:#2B2D30;color:#FFFFFF;fontSize:15px;fontWeight:500;whiteSpace:nowrap" style-hover="background:#333333;color:#FFFFFF">Get in touch</a>
-        <a href="#work" style="padding:14px 24px;border:1px solid #101010;fontSize:15px;fontWeight:500;whiteSpace:nowrap" style-hover="background:#2B2D30;color:#FFFFFF">See the work</a>
-        <div style="display:flex;gap:10px">
-        <a href="https://www.linkedin.com/in/andres-bleckwedel" target="_blank" rel="noopener" aria-label="LinkedIn" class="icon-btn" style="padding:14px 18px;border:1px solid #DADADA;fontSize:15px;fontWeight:500;color:#5C5C5C;display:flex;alignItems:center;justifyContent:center;gap:8px" style-hover="border-color:#101010;color:#101010">
+      <div class="hero-actions">
+        <a href="mailto:andres.bleckwedel2@gmail.com" class="hbtn hbtn-primary" data-magnetic>Get in touch <span class="hbtn-arrow" aria-hidden="true">→</span></a>
+        <a href="#work" class="hbtn hbtn-secondary" data-magnetic>See the work</a>
+        <div class="hero-socials">
+        <a href="https://www.linkedin.com/in/andres-bleckwedel" target="_blank" rel="noopener" aria-label="LinkedIn" class="hbtn hbtn-ghost icon-btn">
           <svg class="btn-icon" style="display:none" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
           <span class="btn-label">LinkedIn</span>
         </a>
-        <a href="https://github.com/andresbleck/" target="_blank" rel="noopener" aria-label="GitHub" class="icon-btn" style="padding:14px 18px;border:1px solid #DADADA;fontSize:15px;fontWeight:500;color:#5C5C5C;display:flex;alignItems:center;justifyContent:center;gap:8px" style-hover="border-color:#101010;color:#101010">
+        <a href="https://github.com/andresbleck/" target="_blank" rel="noopener" aria-label="GitHub" class="hbtn hbtn-ghost icon-btn">
           <svg class="btn-icon" style="display:none" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
           <span class="btn-label">GitHub</span>
         </a>
@@ -106,9 +359,13 @@
       </div>
     </div>
     </div>
+    <a href="#about" id="hero-cue" class="hero-cue" aria-label="Scroll to About">
+      <span class="hero-cue-mouse"><span class="hero-cue-dot"></span></span>
+      <span>Scroll</span>
+    </a>
   </section>
 
-  <div style="borderTop:1px solid #EAEAEA;borderBottom:1px solid #EAEAEA;overflow:hidden;padding:22px 0">
+  <div class="marquee-mask" style="borderTop:1px solid #EAEAEA;borderBottom:1px solid #EAEAEA;overflow:hidden;padding:22px 0">
     <div style="display:flex;width:max-content;animation:marquee 26s linear infinite">
       <div style="display:flex;gap:56px;paddingRight:56px;fontSize:clamp(20px,2.6vw,30px);fontWeight:500;letterSpacing:-0.02em;color:#D2D2D2;whiteSpace:nowrap">
         <span>React</span><span>TypeScript</span><span>Tailwind CSS</span><span>Node.js</span><span>PostgreSQL</span><span>Supabase</span><span>REST APIs</span><span>Git</span>
@@ -122,7 +379,7 @@
 
   <section id="about" style="borderTop:1px solid #EAEAEA">
     <div style="max-width:1080px;margin:0 auto;padding:96px 32px">
-    <h2 data-reveal style="margin:0 0 32px;paddingBottom:20px;borderBottom:1px solid #101010;fontSize:12px;fontWeight:500;letterSpacing:0.08em;textTransform:uppercase">About</h2>
+    <h2 data-reveal class="sec-head" style="margin:0 0 32px;paddingBottom:20px;fontSize:12px;fontWeight:500;letterSpacing:0.08em;textTransform:uppercase">About</h2>
     <div class="about-grid" style="display:grid;gridTemplateColumns:minmax(0,1fr) minmax(0,220px);gap:56px;align-items:start">
       <div>
         <p data-reveal style="margin:0;fontSize:clamp(21px,2.5vw,29px);fontWeight:500;lineHeight:1.35;letterSpacing:-0.025em;maxWidth:760px;textWrap:pretty">
@@ -132,18 +389,18 @@
           My main focus is frontend development, but I also have experience building full-stack projects and enjoy understanding how the different parts of an application work together. I'm looking for my first professional opportunity where I can keep learning, contribute to a team, and grow as a developer.
         </p>
         <div data-reveal style="marginTop:36px;display:flex;flex-wrap:wrap;gap:10px">
-          <span style="fontSize:13px;color:#5C5C5C;padding:6px 12px;border:1px solid #EAEAEA">React</span>
-          <span style="fontSize:13px;color:#5C5C5C;padding:6px 12px;border:1px solid #EAEAEA">TypeScript</span>
-          <span style="fontSize:13px;color:#5C5C5C;padding:6px 12px;border:1px solid #EAEAEA">HTML</span>
-          <span style="fontSize:13px;color:#5C5C5C;padding:6px 12px;border:1px solid #EAEAEA">Tailwind CSS</span>
-          <span style="fontSize:13px;color:#5C5C5C;padding:6px 12px;border:1px solid #EAEAEA">Node.js</span>
-          <span style="fontSize:13px;color:#5C5C5C;padding:6px 12px;border:1px solid #EAEAEA">PostgreSQL</span>
-          <span style="fontSize:13px;color:#5C5C5C;padding:6px 12px;border:1px solid #EAEAEA">Supabase</span>
+          <span class="chip">React</span>
+          <span class="chip">TypeScript</span>
+          <span class="chip">HTML</span>
+          <span class="chip">Tailwind CSS</span>
+          <span class="chip">Node.js</span>
+          <span class="chip">PostgreSQL</span>
+          <span class="chip">Supabase</span>
         </div>
       </div>
       <div class="about-photo-col" style="display:flex;flex-direction:column;gap:12px">
-        <div data-reveal style="position:relative;width:100%;aspect-ratio:4 / 5;background:#F4F4F4">
-          <image-slot src="./assets/foto.jpg" id="andres-photo" shape="rect"
+        <div data-reveal class="photo-frame">
+          <image-slot src="./assets/foto.jpg" id="andres-photo" shape="rect" data-parallax="0.08"
           ></image-slot>
         </div>
 
@@ -154,48 +411,48 @@
 
   <section id="work" style="borderTop:1px solid #EAEAEA">
     <div style="max-width:1080px;margin:0 auto;padding:96px 32px 104px">
-    <div data-reveal style="display:flex;align-items:baseline;justify-content:space-between;gap:16px;paddingBottom:20px;borderBottom:1px solid #101010">
+    <div data-reveal class="sec-head" style="display:flex;align-items:baseline;justify-content:space-between;gap:16px;paddingBottom:20px">
       <h2 style="margin:0;fontSize:13px;fontWeight:500;letterSpacing:0.06em;textTransform:uppercase">Case Studies</h2>
       <span style="fontSize:13px;color:#9A9A9A">Click to expand</span>
     </div>
 
     <div style="borderBottom:1px solid #EAEAEA">
-      <div class="proj-row" role="button" onClick="{{ toggle1 }}" style="display:grid;gridTemplateColumns:28px minmax(0,1fr) auto;gap:20px;align-items:center;padding:26px 0;cursor:pointer;transition:padding-left 0.15s,background 0.15s" style-hover="background:#FAFAFA">
+      <div class="proj-row" role="button" tabIndex="0" aria-expanded="{{ exp1 }}" onClick="{{ toggle1 }}" onKeyDown="{{ key1 }}" style="display:grid;gridTemplateColumns:28px minmax(0,1fr) auto;gap:20px;align-items:center;padding:26px 0;cursor:pointer">
         <span data-reveal style="fontSize:13px;color:#9A9A9A">01</span>
         <div data-reveal style="display:flex;flex-wrap:wrap;align-items:baseline;gap:14px">
-          <span style="fontSize:clamp(20px,2.4vw,26px);fontWeight:500;letterSpacing:-0.03em">Mate Store</span>
-          <span style="fontSize:14px;color:#767676">E-commerce with admin dashboard</span>
+          <span class="proj-title" style="fontSize:clamp(20px,2.4vw,26px);fontWeight:500;letterSpacing:-0.03em">Mate Store</span>
+          <span style="fontSize:14px;color:#767676">E-commerce with admin dashboard and AI support agent</span>
         </div>
         <div class="proj-meta" data-reveal style="display:flex;align-items:center;gap:20px">
-          <span style="fontSize:13px;color:#9A9A9A;whiteSpace:nowrap">React · Supabase</span>
-          <span style="fontSize:18px;color:#9A9A9A;width:14px;textAlign:center">{{ sign1 }}</span>
+          <span style="fontSize:13px;color:#9A9A9A;whiteSpace:nowrap">React · Supabase · n8n · LLM</span>
+          <span class="proj-sign" aria-hidden="true">+</span>
         </div>
       </div>
       <div class="acc-collapse" style="gridTemplateRows:{{ rows1 }}">
         <div class="acc-collapse-inner">
-        <div style="display:grid;gridTemplateColumns:28px minmax(0,1fr);gap:20px;paddingBottom:36px">
+        <div class="acc-content" style="display:grid;gridTemplateColumns:28px minmax(0,1fr);gap:20px;paddingBottom:36px">
           <div></div>
           <div>
-            <a href="https://ecommerce-kappa-olive-73.vercel.app/#/" target="_blank" rel="noopener" style="display:block;border:1px solid #EAEAEA">
-              <img src="./assets/mate-store.png" alt="Mate Store storefront with product cards" loading="lazy" style="display:block;width:100%;height:auto" />
+            <a href="https://ecommerce-kappa-olive-73.vercel.app/#/" target="_blank" rel="noopener" class="shot">
+              <img src="./assets/mate-store.png" alt="Mate Store storefront with product cards" loading="lazy" />
             </a>
             <div style="marginTop:24px;display:grid;gridTemplateColumns:repeat(auto-fit,minmax(220px,1fr));gap:28px">
               <div>
                 <h4 style="margin:0 0 8px;fontSize:12px;fontWeight:500;letterSpacing:0.06em;textTransform:uppercase;color:#9A9A9A">Problem</h4>
-                <p style="margin:0;fontSize:15px;lineHeight:1.6;color:#5C5C5C;textWrap:pretty">I based it on a mate and Argentine products business owned by some friends. After showing them the first prototype, we decided to adapt it so they could actually use it for their business.</p>
+                <p style="margin:0;fontSize:15px;lineHeight:1.6;color:#5C5C5C;textWrap:pretty">I based it on a mate business owned by some friends. After seeing the first prototype, we adapted it so they could use it for real. Once live, customers kept asking the same questions about stock, shipping and orders, which the owners answered manually.</p>
               </div>
               <div>
                 <h4 style="margin:0 0 8px;fontSize:12px;fontWeight:500;letterSpacing:0.06em;textTransform:uppercase;color:#9A9A9A">What I did</h4>
-                <p style="margin:0;fontSize:15px;lineHeight:1.6;color:#5C5C5C;textWrap:pretty">Updated the design, content and structure from real client feedback. Built an admin dashboard with Supabase to manage products and orders, added category filters, and split the public store from the admin area for usability and security.</p>
+                <p style="margin:0;fontSize:15px;lineHeight:1.6;color:#5C5C5C;textWrap:pretty">Built the store and an admin dashboard with React and Supabase based on real client feedback. Added an AI support agent with n8n that queries the Supabase database in real time to answer stock and order questions, and logs complaints in Google Sheets.</p>
               </div>
               <div>
                 <h4 style="margin:0 0 8px;fontSize:12px;fontWeight:500;letterSpacing:0.06em;textTransform:uppercase;color:#9A9A9A">Outcome</h4>
-                <p style="margin:0;fontSize:15px;lineHeight:1.6;color:#5C5C5C;textWrap:pretty">Confidence building software for a real business, and stronger experience with React, Supabase and complete CRUD applications.</p>
+                <p style="margin:0;fontSize:15px;lineHeight:1.6;color:#5C5C5C;textWrap:pretty">Real experience building software for a real business, from full CRUD with React and Supabase to an AI agent that connects an LLM to live business data. The agent handles routine questions automatically and makes sure no urgent complaint gets lost.</p>
               </div>
             </div>
             <div style="marginTop:24px;display:flex;flex-wrap:wrap;gap:20px;fontSize:14px;fontWeight:500">
-              <a href="https://ecommerce-kappa-olive-73.vercel.app/#/" target="_blank" rel="noopener" style="borderBottom:1px solid #101010;paddingBottom:2px">Live demo ↗</a>
-              <a href="https://github.com/andresbleck/" target="_blank" rel="noopener" style="borderBottom:1px solid #DADADA;paddingBottom:2px;color:#5C5C5C" style-hover="border-color:#101010;color:#101010">Code ↗</a>
+              <a href="https://ecommerce-kappa-olive-73.vercel.app/#/" target="_blank" rel="noopener" class="tlink">Live demo ↗</a>
+              <a href="https://github.com/andresbleck/" target="_blank" rel="noopener" class="tlink tlink--muted">Code ↗</a>
             </div>
           </div>
         </div>
@@ -204,24 +461,24 @@
     </div>
 
     <div style="borderBottom:1px solid #EAEAEA">
-      <div class="proj-row" role="button" onClick="{{ toggle2 }}" style="display:grid;gridTemplateColumns:28px minmax(0,1fr) auto;gap:20px;align-items:center;padding:26px 0;cursor:pointer;transition:padding-left 0.15s,background 0.15s" style-hover="background:#FAFAFA">
+      <div class="proj-row" role="button" tabIndex="0" aria-expanded="{{ exp2 }}" onClick="{{ toggle2 }}" onKeyDown="{{ key2 }}" style="display:grid;gridTemplateColumns:28px minmax(0,1fr) auto;gap:20px;align-items:center;padding:26px 0;cursor:pointer">
         <span data-reveal style="fontSize:13px;color:#9A9A9A">02</span>
         <div data-reveal style="display:flex;flex-wrap:wrap;align-items:baseline;gap:14px">
-          <span style="fontSize:clamp(20px,2.4vw,26px);fontWeight:500;letterSpacing:-0.03em">Architecture Landing Page</span>
+          <span class="proj-title" style="fontSize:clamp(20px,2.4vw,26px);fontWeight:500;letterSpacing:-0.03em">Architecture Landing Page</span>
           <span style="fontSize:14px;color:#767676">Portfolio site for an architect</span>
         </div>
         <div class="proj-meta" data-reveal style="display:flex;align-items:center;gap:20px">
           <span style="fontSize:13px;color:#9A9A9A;whiteSpace:nowrap">React · TypeScript</span>
-          <span style="fontSize:18px;color:#9A9A9A;width:14px;textAlign:center">{{ sign2 }}</span>
+          <span class="proj-sign" aria-hidden="true">+</span>
         </div>
       </div>
       <div class="acc-collapse" style="gridTemplateRows:{{ rows2 }}">
         <div class="acc-collapse-inner">
-        <div style="display:grid;gridTemplateColumns:28px minmax(0,1fr);gap:20px;paddingBottom:36px">
+        <div class="acc-content" style="display:grid;gridTemplateColumns:28px minmax(0,1fr);gap:20px;paddingBottom:36px">
           <div></div>
           <div>
-            <a href="https://jm-jky0.onrender.com/" target="_blank" rel="noopener" style="display:block;border:1px solid #EAEAEA">
-              <img src="./assets/architecture.png" alt="Architecture landing page hero" loading="lazy" style="display:block;width:100%;height:auto" />
+            <a href="https://jm-jky0.onrender.com/" target="_blank" rel="noopener" class="shot">
+              <img src="./assets/architecture.png" alt="Architecture landing page hero" loading="lazy" />
             </a>
             <div style="marginTop:24px;display:grid;gridTemplateColumns:repeat(auto-fit,minmax(220px,1fr));gap:28px">
               <div>
@@ -238,8 +495,8 @@
               </div>
             </div>
             <div style="marginTop:24px;display:flex;flex-wrap:wrap;gap:20px;fontSize:14px;fontWeight:500">
-              <a href="https://jm-jky0.onrender.com/" target="_blank" rel="noopener" style="borderBottom:1px solid #101010;paddingBottom:2px">Live demo ↗</a>
-              <a href="https://github.com/andresbleck/" target="_blank" rel="noopener" style="borderBottom:1px solid #DADADA;paddingBottom:2px;color:#5C5C5C" style-hover="border-color:#101010;color:#101010">Code ↗</a>
+              <a href="https://jm-jky0.onrender.com/" target="_blank" rel="noopener" class="tlink">Live demo ↗</a>
+              <a href="https://github.com/andresbleck/" target="_blank" rel="noopener" class="tlink tlink--muted">Code ↗</a>
             </div>
           </div>
         </div>
@@ -248,24 +505,24 @@
     </div>
 
     <div style="borderBottom:1px solid #EAEAEA">
-      <div class="proj-row" role="button" onClick="{{ toggle3 }}" style="display:grid;gridTemplateColumns:28px minmax(0,1fr) auto;gap:20px;align-items:center;padding:26px 0;cursor:pointer;transition:padding-left 0.15s,background 0.15s" style-hover="background:#FAFAFA">
+      <div class="proj-row" role="button" tabIndex="0" aria-expanded="{{ exp3 }}" onClick="{{ toggle3 }}" onKeyDown="{{ key3 }}" style="display:grid;gridTemplateColumns:28px minmax(0,1fr) auto;gap:20px;align-items:center;padding:26px 0;cursor:pointer">
         <span data-reveal style="fontSize:13px;color:#9A9A9A">03</span>
         <div data-reveal style="display:flex;flex-wrap:wrap;align-items:baseline;gap:14px">
-          <span style="fontSize:clamp(20px,2.4vw,26px);fontWeight:500;letterSpacing:-0.03em">Garage Manage</span>
+          <span class="proj-title" style="fontSize:clamp(20px,2.4vw,26px);fontWeight:500;letterSpacing:-0.03em">Garage Manage</span>
           <span style="fontSize:14px;color:#767676">Full-stack vehicle maintenance app</span>
         </div>
         <div class="proj-meta" data-reveal style="display:flex;align-items:center;gap:20px">
           <span style="fontSize:13px;color:#9A9A9A;whiteSpace:nowrap">Node.js · PostgreSQL</span>
-          <span style="fontSize:18px;color:#9A9A9A;width:14px;textAlign:center">{{ sign3 }}</span>
+          <span class="proj-sign" aria-hidden="true">+</span>
         </div>
       </div>
       <div class="acc-collapse" style="gridTemplateRows:{{ rows3 }}">
         <div class="acc-collapse-inner">
-        <div style="display:grid;gridTemplateColumns:28px minmax(0,1fr);gap:20px;paddingBottom:36px">
+        <div class="acc-content" style="display:grid;gridTemplateColumns:28px minmax(0,1fr);gap:20px;paddingBottom:36px">
           <div></div>
           <div>
-            <a href="https://garage-manager-five.vercel.app/" target="_blank" rel="noopener" style="display:block;border:1px solid #EAEAEA">
-              <img src="./assets/garage-manager.png" alt="Garage Manager landing screen with feature cards" loading="lazy" style="display:block;width:100%;height:auto" />
+            <a href="https://garage-manager-five.vercel.app/" target="_blank" rel="noopener" class="shot">
+              <img src="./assets/garage-manager.png" alt="Garage Manager landing screen with feature cards" loading="lazy" />
             </a>
             <div style="marginTop:24px;display:grid;gridTemplateColumns:repeat(auto-fit,minmax(220px,1fr));gap:28px">
               <div>
@@ -282,8 +539,8 @@
               </div>
             </div>
             <div style="marginTop:24px;display:flex;flex-wrap:wrap;gap:20px;fontSize:14px;fontWeight:500">
-              <a href="https://garage-manager-five.vercel.app/" target="_blank" rel="noopener" style="borderBottom:1px solid #101010;paddingBottom:2px">Live demo ↗</a>
-              <a href="https://github.com/andresbleck/" target="_blank" rel="noopener" style="borderBottom:1px solid #DADADA;paddingBottom:2px;color:#5C5C5C" style-hover="border-color:#101010;color:#101010">Code ↗</a>
+              <a href="https://garage-manager-five.vercel.app/" target="_blank" rel="noopener" class="tlink">Live demo ↗</a>
+              <a href="https://github.com/andresbleck/" target="_blank" rel="noopener" class="tlink tlink--muted">Code ↗</a>
             </div>
           </div>
         </div>
@@ -292,24 +549,24 @@
     </div>
 
     <div style="borderBottom:1px solid #EAEAEA">
-      <div class="proj-row" role="button" onClick="{{ toggle4 }}" style="display:grid;gridTemplateColumns:28px minmax(0,1fr) auto;gap:20px;align-items:center;padding:26px 0;cursor:pointer;transition:padding-left 0.15s,background 0.15s" style-hover="background:#FAFAFA">
+      <div class="proj-row" role="button" tabIndex="0" aria-expanded="{{ exp4 }}" onClick="{{ toggle4 }}" onKeyDown="{{ key4 }}" style="display:grid;gridTemplateColumns:28px minmax(0,1fr) auto;gap:20px;align-items:center;padding:26px 0;cursor:pointer">
         <span data-reveal style="fontSize:13px;color:#9A9A9A">04</span>
         <div data-reveal style="display:flex;flex-wrap:wrap;align-items:baseline;gap:14px">
-          <span style="fontSize:clamp(20px,2.4vw,26px);fontWeight:500;letterSpacing:-0.03em">Forge Gym</span>
+          <span class="proj-title" style="fontSize:clamp(20px,2.4vw,26px);fontWeight:500;letterSpacing:-0.03em">Forge Gym</span>
           <span style="fontSize:14px;color:#767676">Gym App - FlyRankAi Capstone</span>
         </div>
         <div class="proj-meta" data-reveal style="display:flex;align-items:center;gap:20px">
           <span style="fontSize:13px;color:#9A9A9A;whiteSpace:nowrap">React.js · Next.js</span>
-          <span style="fontSize:18px;color:#9A9A9A;width:14px;textAlign:center">{{ sign4 }}</span>
+          <span class="proj-sign" aria-hidden="true">+</span>
         </div>
       </div>
       <div class="acc-collapse" style="gridTemplateRows:{{ rows4 }}">
         <div class="acc-collapse-inner">
-        <div style="display:grid;gridTemplateColumns:28px minmax(0,1fr);gap:20px;paddingBottom:36px">
+        <div class="acc-content" style="display:grid;gridTemplateColumns:28px minmax(0,1fr);gap:20px;paddingBottom:36px">
           <div></div>
           <div>
-            <a href="https://flyrank-capstone-two.vercel.app/" target="_blank" rel="noopener" style="display:block;border:1px solid #EAEAEA">
-              <img src="./assets/forge.png" alt="Forge Gym landing screen with AI-powered workout features" loading="lazy" style="display:block;width:100%;height:auto" />
+            <a href="https://flyrank-capstone-two.vercel.app/" target="_blank" rel="noopener" class="shot">
+              <img src="./assets/forge.png" alt="Forge Gym landing screen with AI-powered workout features" loading="lazy" />
             </a>
             <div style="marginTop:24px;display:grid;gridTemplateColumns:repeat(auto-fit,minmax(220px,1fr));gap:28px">
               <div>
@@ -326,8 +583,8 @@
               </div>
             </div>
             <div style="marginTop:24px;display:flex;flex-wrap:wrap;gap:20px;fontSize:14px;fontWeight:500">
-              <a href="https://flyrank-capstone-two.vercel.app/" target="_blank" rel="noopener" style="borderBottom:1px solid #101010;paddingBottom:2px">Live demo ↗</a>
-              <a href="https://github.com/andresbleck/" target="_blank" rel="noopener" style="borderBottom:1px solid #DADADA;paddingBottom:2px;color:#5C5C5C" style-hover="border-color:#101010;color:#101010">Code ↗</a>
+              <a href="https://flyrank-capstone-two.vercel.app/" target="_blank" rel="noopener" class="tlink">Live demo ↗</a>
+              <a href="https://github.com/andresbleck/" target="_blank" rel="noopener" class="tlink tlink--muted">Code ↗</a>
             </div>
           </div>
         </div>
@@ -337,16 +594,19 @@
     </div>
   </section>
 
-  <section id="contact" style="background:#2B2D30;color:#FFFFFF">
-    <div style="max-width:1080px;margin:0 auto;padding:112px 32px 96px">
+  <section id="contact" class="contact">
+    <canvas id="contact-grid"></canvas>
+    <div class="contact-inner" style="max-width:1080px;margin:0 auto;padding:112px 32px 96px">
       <p data-reveal style="margin:0 0 28px;fontSize:12px;fontWeight:500;letterSpacing:0.08em;textTransform:uppercase;color:#A0A3A9">Contact</p>
-      <h2 data-reveal style="margin:0;fontWeight:500;fontSize:clamp(34px,6.4vw,80px);lineHeight:0.95;letterSpacing:-0.045em;maxWidth:900px;textWrap:balance">Interested in working together?</h2>
+      <h2 data-reveal-words class="mask-words" aria-label="Interested in working together?" style="margin:0;fontWeight:600;fontSize:clamp(38px,7vw,92px);lineHeight:0.95;letterSpacing:-0.05em;maxWidth:960px">
+        <span class="mw" aria-hidden="true"><span>Interested</span></span> <span class="mw" aria-hidden="true"><span>in</span></span> <span class="mw" aria-hidden="true"><span class="contact-muted">working</span></span> <span class="mw" aria-hidden="true"><span class="contact-muted">together?</span></span>
+      </h2>
       <p data-reveal style="margin:32px 0 0;fontSize:18px;lineHeight:1.6;color:#C4C7CC;maxWidth:560px;textWrap:pretty">
         I'm looking for an opportunity to grow as a Frontend Developer and contribute to a product-focused team. If you think I'd be a good fit, I'd love to hear from you.
       </p>
       <div data-reveal style="marginTop:44px;display:flex;flex-wrap:wrap;align-items:center;gap:12px">
-        <a href="mailto:andres.bleckwedel2@gmail.com" style="padding:15px 26px;background:#FFFFFF;color:#101010;fontSize:15px;fontWeight:500;whiteSpace:nowrap" style-hover="background:#D2D2D2;color:#101010">Send me an email</a>
-        <button type="button" onClick="{{ copyEmail }}" style="padding:15px 26px;border:1px solid #55585E;background:transparent;color:#FFFFFF;fontSize:15px;fontWeight:500;font-family:inherit;cursor:pointer;whiteSpace:nowrap;flexShrink:0" style-hover="border-color:#FFFFFF">{{ copyLabel }}</button>
+        <a href="mailto:andres.bleckwedel2@gmail.com" class="hbtn hbtn-light" data-magnetic>Send me an email <span class="hbtn-arrow" aria-hidden="true">→</span></a>
+        <button type="button" onClick="{{ copyEmail }}" class="hbtn hbtn-outline-dark" data-magnetic style="flexShrink:0">{{ copyLabel }}</button>
       </div>
       <p data-reveal style="margin:28px 0 0;fontSize:15px;color:#A0A3A9">andres.bleckwedel2@gmail.com</p>
     </div>
@@ -405,19 +665,60 @@ class Component extends DCLogic {
       const max = document.documentElement.scrollHeight - window.innerHeight;
       const p = max > 0 ? Math.min(100, (window.scrollY / max) * 100) : 0;
       bar.style.width = p + "%";
+      this._heroScroll();
+      this._pageScroll();
       this._sweep();
     };
+    // Apple product-page recession: as you scroll away, the hero sinks back
+    // (slower than the page, slightly smaller, fading) instead of just scrolling off.
+    const heroInner = document.getElementById("hero-inner");
+    const heroCue = document.getElementById("hero-cue");
+    const heroSection = document.getElementById("top");
+    const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    this._heroScroll = () => {
+      if (!heroInner || !heroSection) return;
+      const hh = heroSection.offsetHeight || 1;
+      const t = Math.min(1, Math.max(0, window.scrollY / hh));
+      if (heroCue) heroCue.style.opacity = String(Math.max(0, 1 - t * 4));
+      if (reduce) return;
+      heroInner.style.transform = "translate3d(0," + (t * hh * 0.35).toFixed(1) + "px,0) scale(" + (1 - t * 0.08).toFixed(4) + ")";
+      heroInner.style.opacity = String(1 - t * 0.85);
+    };
+    // Other scroll-linked motion: media drifting inside its frame, and the
+    // Contact stage widening from an inset rounded card to full bleed.
+    const parallaxEls = Array.from(document.querySelectorAll("[data-parallax]"));
+    const contact = document.getElementById("contact");
+    this._pageScroll = () => {
+      if (reduce) return;
+      const vh = window.innerHeight;
+      parallaxEls.forEach((el) => {
+        const r = el.parentElement.getBoundingClientRect();
+        if (r.bottom < 0 || r.top > vh) return;
+        const off = (r.top + r.height / 2 - vh / 2) * parseFloat(el.getAttribute("data-parallax"));
+        el.style.transform = "translate3d(0," + off.toFixed(1) + "px,0)";
+      });
+      if (contact) {
+        const r = contact.getBoundingClientRect();
+        // 0 when the section's top enters at the bottom, 1 once it reaches 35% of the viewport
+        const p = Math.min(1, Math.max(0, (vh - r.top) / (vh * 0.65)));
+        const e = 1 - Math.pow(1 - p, 3);
+        const inset = ((1 - e) * Math.min(48, window.innerWidth * 0.04)).toFixed(1);
+        const rad = ((1 - e) * 32).toFixed(1);
+        contact.style.clipPath = p >= 1 ? "" : "inset(0 " + inset + "px round " + rad + "px)";
+      }
+    };
+    this._initMagnetic(reduce);
     this._reveal = (el) => {
       if (el.hasAttribute("data-shown")) return;
       const siblings = Array.from(el.parentElement.querySelectorAll(":scope > [data-reveal]"));
-      el.style.transitionDelay = Math.min(siblings.indexOf(el), 4) * 90 + "ms";
+      if (el.hasAttribute("data-reveal")) el.style.transitionDelay = Math.max(0, Math.min(siblings.indexOf(el), 4)) * 70 + "ms";
       el.setAttribute("data-shown", "");
       if (this._io) this._io.unobserve(el);
     };
     // safety net: anything already at or above the fold reveals even if its
     // intersection was skipped by a fast scroll or an anchor jump
     this._sweep = () => {
-      document.querySelectorAll("[data-reveal]:not([data-shown])").forEach(el => {
+      document.querySelectorAll("[data-reveal]:not([data-shown]), [data-reveal-words]:not([data-shown])").forEach(el => {
         if (el.getBoundingClientRect().top < window.innerHeight) this._reveal(el);
       });
     };
@@ -425,10 +726,15 @@ class Component extends DCLogic {
       if (!this._raf) this._raf = requestAnimationFrame(this._tick);
     };
     window.addEventListener("scroll", this._onScroll, { passive: true });
+    this._grids = [
+      this._initDotGrid({ canvas: "hero-grid", section: "top", rgb: "16,16,16", base: 0.10, boost: 0.32,
+        spots: [document.getElementById("hero-muted")], spotRgb: "16,16,16", spotMax: 0.85 }),
+      this._initDotGrid({ canvas: "contact-grid", section: "contact", rgb: "255,255,255", base: 0.07, boost: 0.38,
+        spots: Array.from(document.querySelectorAll(".contact-muted")), spotRgb: "255,255,255", spotMax: 0.95 }),
+    ];
     this._tick();
-    this._initHeroGrid();
 
-    const targets = Array.from(document.querySelectorAll("[data-reveal]"));
+    const targets = Array.from(document.querySelectorAll("[data-reveal], [data-reveal-words]"));
     if (!("IntersectionObserver" in window)) {
       targets.forEach(el => el.setAttribute("data-shown", ""));
       return;
@@ -445,35 +751,88 @@ class Component extends DCLogic {
     window.removeEventListener("scroll", this._onScroll);
     if (this._raf) cancelAnimationFrame(this._raf);
     if (this._io) this._io.disconnect();
-    if (this._heroGridCleanup) this._heroGridCleanup();
+    (this._grids || []).forEach((fn) => fn && fn());
+    if (this._magneticCleanup) this._magneticCleanup();
     clearTimeout(this._t);
   }
-  _initHeroGrid() {
-    const canvas = document.getElementById("hero-grid");
-    const section = document.getElementById("top");
-    if (!canvas || !section) return;
+  // Buttons lean toward the cursor and spring back on leave. Uses the
+  // individual `translate` property so it composes with the :active scale.
+  _initMagnetic(reduce) {
+    const fine = window.matchMedia && window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+    if (reduce || !fine) return;
+    // Apple-style spring params: response (s) + damping ratio. A little bounce
+    // because the release carries momentum from the pointer.
+    const RESPONSE = 0.4, DAMPING = 0.7, PULL = 0.28, MAX = 10;
+    const omega = (2 * Math.PI) / RESPONSE;
+    const cleanups = [];
+    document.querySelectorAll("[data-magnetic]").forEach((el) => {
+      const s = { x: 0, y: 0, vx: 0, vy: 0, tx: 0, ty: 0, raf: 0, last: 0 };
+      const step = (now) => {
+        const dt = Math.min((now - s.last) / 1000, 1 / 30);
+        s.last = now;
+        const ax = -omega * omega * (s.x - s.tx) - 2 * DAMPING * omega * s.vx;
+        const ay = -omega * omega * (s.y - s.ty) - 2 * DAMPING * omega * s.vy;
+        s.vx += ax * dt; s.vy += ay * dt;
+        s.x += s.vx * dt; s.y += s.vy * dt;
+        el.style.translate = s.x.toFixed(2) + "px " + s.y.toFixed(2) + "px";
+        const settled = Math.abs(s.x - s.tx) < 0.05 && Math.abs(s.y - s.ty) < 0.05 && Math.abs(s.vx) < 0.5 && Math.abs(s.vy) < 0.5;
+        if (settled) { s.x = s.tx; s.y = s.ty; el.style.translate = s.x + "px " + s.y + "px"; s.raf = 0; return; }
+        s.raf = requestAnimationFrame(step);
+      };
+      const kick = () => { if (!s.raf) { s.last = performance.now(); s.raf = requestAnimationFrame(step); } };
+      const onMove = (e) => {
+        const r = el.getBoundingClientRect();
+        const cx = r.left + r.width / 2 - s.x, cy = r.top + r.height / 2 - s.y; // resting center
+        s.tx = Math.max(-MAX, Math.min(MAX, (e.clientX - cx) * PULL));
+        s.ty = Math.max(-MAX, Math.min(MAX, (e.clientY - cy) * PULL));
+        kick();
+      };
+      const onLeave = () => { s.tx = 0; s.ty = 0; kick(); };
+      el.addEventListener("pointermove", onMove);
+      el.addEventListener("pointerleave", onLeave);
+      cleanups.push(() => {
+        el.removeEventListener("pointermove", onMove);
+        el.removeEventListener("pointerleave", onLeave);
+        if (s.raf) cancelAnimationFrame(s.raf);
+      });
+    });
+    this._magneticCleanup = () => cleanups.forEach((fn) => fn());
+  }
+  // Dot grid whose dots swell under a smoothed pointer spotlight. The same light
+  // also passes over gradient text (`spots`) via --mx/--my/--spot.
+  _initDotGrid({ canvas: canvasId, section: sectionId, rgb, base, boost, spots, spotRgb, spotMax }) {
+    const canvas = document.getElementById(canvasId);
+    const section = document.getElementById(sectionId);
+    if (!canvas || !section) return null;
     const ctx = canvas.getContext("2d");
     const reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const SPACING = 30, RADIUS = 1.3, HOVER_R = 140;
+    const SPACING = 30, RADIUS = 1.3, HOVER_R = 170;
+    spots = (spots || []).filter(Boolean);
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    let w = 0, h = 0, pointer = null, raf = 0;
+    // Time constants (s) for exponential smoothing — behaves like a critically
+    // damped spring: no overshoot, always continues from the current value.
+    const FOLLOW_TAU = 0.09, FADE_TAU = 0.2;
+    let w = 0, h = 0, raf = 0, last = 0;
+    let target = null;              // live pointer position, null when outside
+    let px = 0, py = 0, inf = 0;    // smoothed spotlight position + strength (0..1)
 
     const draw = () => {
       ctx.clearRect(0, 0, w, h);
       for (let y = SPACING / 2; y < h; y += SPACING) {
         for (let x = SPACING / 2; x < w; x += SPACING) {
-          let r = RADIUS, a = 0.10;
-          if (pointer) {
-            const d = Math.hypot(x - pointer.x, y - pointer.y);
+          let r = RADIUS, a = base;
+          if (inf > 0.001) {
+            const d = Math.hypot(x - px, y - py);
             if (d < HOVER_R) {
-              const t = 1 - d / HOVER_R;
+              let t = 1 - d / HOVER_R;
+              t = t * t * (3 - 2 * t) * inf; // smoothstep falloff, scaled by strength
               r = RADIUS + t * 2.2;
-              a = 0.10 + t * 0.32;
+              a = base + t * boost;
             }
           }
           ctx.beginPath();
           ctx.arc(x, y, r, 0, Math.PI * 2);
-          ctx.fillStyle = "rgba(16,16,16," + a + ")";
+          ctx.fillStyle = "rgba(" + rgb + "," + a + ")";
           ctx.fill();
         }
       }
@@ -488,38 +847,62 @@ class Component extends DCLogic {
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       draw();
     };
-    const loop = () => {
+    const loop = (now) => {
+      const dt = Math.min((now - last) / 1000, 1 / 30);
+      last = now;
+      if (target) {
+        const k = 1 - Math.exp(-dt / FOLLOW_TAU);
+        px += (target.x - px) * k;
+        py += (target.y - py) * k;
+      }
+      inf += ((target ? 1 : 0) - inf) * (1 - Math.exp(-dt / FADE_TAU));
       draw();
-      raf = pointer ? requestAnimationFrame(loop) : 0;
+      // same smoothed light passes over the muted gradient text
+      if (spots.length) {
+        const sr = section.getBoundingClientRect();
+        spots.forEach((el) => {
+          const mr = el.getBoundingClientRect();
+          el.style.setProperty("--mx", (px - (mr.left - sr.left)).toFixed(1) + "px");
+          el.style.setProperty("--my", (py - (mr.top - sr.top)).toFixed(1) + "px");
+          el.style.setProperty("--spot", "rgba(" + spotRgb + "," + (inf * spotMax).toFixed(3) + ")");
+        });
+      }
+      const settled = !target && inf < 0.001;
+      if (settled) { inf = 0; draw(); raf = 0; return; }
+      raf = requestAnimationFrame(loop);
     };
     const onMove = (e) => {
+      if (e.pointerType && e.pointerType !== "mouse") return; // don't fight touch scrolling
       const rect = section.getBoundingClientRect();
-      pointer = { x: e.clientX - rect.left, y: e.clientY - rect.top };
-      if (!raf) raf = requestAnimationFrame(loop);
+      target = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+      // entering from rest: start at the pointer instead of sweeping in from the old spot
+      if (inf < 0.02) { px = target.x; py = target.y; }
+      if (!raf) { last = performance.now(); raf = requestAnimationFrame(loop); }
     };
     const onLeave = () => {
-      pointer = null;
-      if (raf) { cancelAnimationFrame(raf); raf = 0; }
-      draw();
+      target = null; // the loop fades the spotlight out from wherever it is
     };
 
     resize();
     if (!reduceMotion) {
-      section.addEventListener("mousemove", onMove);
-      section.addEventListener("mouseleave", onLeave);
+      section.addEventListener("pointermove", onMove);
+      section.addEventListener("pointerleave", onLeave);
     }
-    this._gridRo = new ResizeObserver(resize);
-    this._gridRo.observe(section);
+    const ro = new ResizeObserver(resize);
+    ro.observe(section);
 
-    this._heroGridCleanup = () => {
-      section.removeEventListener("mousemove", onMove);
-      section.removeEventListener("mouseleave", onLeave);
+    return () => {
+      section.removeEventListener("pointermove", onMove);
+      section.removeEventListener("pointerleave", onLeave);
       if (raf) cancelAnimationFrame(raf);
-      if (this._gridRo) this._gridRo.disconnect();
+      ro.disconnect();
     };
   }
   toggle(n) {
     this.setState(s => ({ open: s.open === n ? 0 : n }));
+  }
+  onRowKey(e, n) {
+    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); this.toggle(n); }
   }
   copyEmail = () => {
     const email = "andres.bleckwedel2@gmail.com";
@@ -539,10 +922,14 @@ class Component extends DCLogic {
       rows2: o === 2 ? "1fr" : "0fr",
       rows3: o === 3 ? "1fr" : "0fr",
       rows4: o === 4 ? "1fr" : "0fr",
-      sign1: o === 1 ? "–" : "+",
-      sign2: o === 2 ? "–" : "+",
-      sign3: o === 3 ? "–" : "+",
-      sign4: o === 4 ? "–" : "+",
+      exp1: o === 1 ? "true" : "false",
+      exp2: o === 2 ? "true" : "false",
+      exp3: o === 3 ? "true" : "false",
+      exp4: o === 4 ? "true" : "false",
+      key1: (e) => this.onRowKey(e, 1),
+      key2: (e) => this.onRowKey(e, 2),
+      key3: (e) => this.onRowKey(e, 3),
+      key4: (e) => this.onRowKey(e, 4),
       toggle1: () => this.toggle(1),
       toggle2: () => this.toggle(2),
       toggle3: () => this.toggle(3),
